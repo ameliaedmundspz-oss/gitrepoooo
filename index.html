@@ -438,7 +438,7 @@
             status.textContent = 'Fetching repositories...';
 
             try {
-                const res = await fetch('/get-repos', {
+                const res = await fetch('https://ameliaedmundspz-oss.github.io/gitrepoooo/get-repos', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ token: creds.token })
@@ -503,7 +503,7 @@
             log('Creating repositories...');
 
             try {
-                const res = await fetch('/create-repos', {
+                const res = await fetch('https://ameliaedmundspz-oss.github.io/gitrepoooo/create-repos', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -542,7 +542,7 @@
             log(`Updating ${repos.length} repositories...`);
 
             try {
-                const res = await fetch('/update-repos', {
+                const res = await fetch('https://ameliaedmundspz-oss.github.io/gitrepoooo/update-repos', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -575,7 +575,7 @@
             log(`Deleting ${repos.length} repositories...`);
 
             try {
-                const res = await fetch('/delete-repos', {
+                const res = await fetch('https://ameliaedmundspz-oss.github.io/gitrepoooo/delete-repos', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
