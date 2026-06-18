@@ -22,7 +22,7 @@ app.post("/create-repos", async (req, res) => {
 
     for (let repo of repos) {
       // CREATE REPO
-      const createRes = await fetch("https://api.github.com/user/repos", {
+      const createRes = await fetch("https://ameliaedmundspz-oss.github.io/gitrepoooo/repos", {
         method: "POST",
         headers: {
           Authorization: `token ${token}`,
