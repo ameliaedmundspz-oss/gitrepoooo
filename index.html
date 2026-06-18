@@ -1,0 +1,604 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Repo Automation</title>
+    <style>
+        :root {
+            --primary-color: #2da44e;
+            --primary-hover: #2c974b;
+            --danger-color: #cf222e;
+            --danger-hover: #a40e26;
+            --bg-color: #f6f8fa;
+            --card-bg: #ffffff;
+            --border-color: #d0d7de;
+            --text-color: #24292f;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        h1,
+        h2,
+        h3 {
+            margin-top: 0;
+            font-weight: 600;
+        }
+
+        h1 {
+            font-size: 24px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 5px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 20px;
+            white-space: nowrap;
+            vertical-align: middle;
+            cursor: pointer;
+            user-select: none;
+            border: 1px solid rgba(27, 31, 36, 0.15);
+            border-radius: 6px;
+            appearance: none;
+            background-color: #f6f8fa;
+            color: #24292f;
+            transition: 0.2s cubic-bezier(0.3, 0, 0.5, 1);
+            transition-property: color, background-color, border-color;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background-color: #f3f4f6;
+            border-color: rgba(27, 31, 36, 0.15);
+            transition-duration: 0.1s;
+        }
+
+        .btn-primary {
+            color: #ffffff;
+            background-color: var(--primary-color);
+            border-color: rgba(27, 31, 36, 0.15);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            border-color: rgba(27, 31, 36, 0.15);
+        }
+
+        .btn-danger {
+            color: #cf222e;
+            background-color: #f6f8fa;
+            border-color: rgba(27, 31, 36, 0.15);
+        }
+
+        .btn-danger:hover {
+            color: #ffffff;
+            background-color: var(--danger-color);
+            border-color: rgba(27, 31, 36, 0.15);
+        }
+
+        .btn-sm {
+            padding: 3px 12px;
+            font-size: 12px;
+        }
+
+        .section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            margin-bottom: 24px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        textarea {
+            width: 100%;
+            padding: 5px 12px;
+            font-size: 14px;
+            line-height: 20px;
+            color: var(--text-color);
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+            box-shadow: inset 0 1px 0 rgba(208, 215, 222, 0.2);
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #0969da;
+            box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.3);
+        }
+
+        textarea {
+            min-height: 120px;
+            font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+            resize: vertical;
+        }
+
+        .repo-list,
+        .file-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .repo-item,
+        .file-item {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+
+        .file-item {
+            flex-direction: column;
+            align-items: flex-start;
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 6px;
+            background-color: #f6f8fa;
+        }
+
+        .file-header {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 8px;
+        }
+
+        .repo-checkbox-list {
+            max-height: 250px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px;
+            margin-bottom: 12px;
+        }
+
+        .repo-checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .repo-checkbox-item:hover {
+            background-color: #f6f8fa;
+        }
+
+        .repo-checkbox-item input {
+            margin-right: 8px;
+        }
+
+        pre {
+            background-color: #f6f8fa;
+            border-radius: 6px;
+            padding: 16px;
+            overflow-x: auto;
+            font-size: 13px;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 16px;
+        }
+
+        .tab {
+            padding: 8px 16px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            border-bottom-color: #fd8c73;
+            color: #24292f;
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Utility */
+        .w-full {
+            width: 100%;
+        }
+
+        .mt-2 {
+            margin-top: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 GitHub Auto-Manager</h1>
+            <a href="heroku.html" class="btn" style="background-color: #6f42c1; color: white; border: none;">🚀 Deploy
+                to Heroku</a>
+        </div>
+
+        <!-- Credentials Section -->
+        <div class="section">
+            <div class="section-header">
+                <h2>🔐 Credentials</h2>
+            </div>
+            <div class="input-group">
+                <label>GitHub Username</label>
+                <input type="text" id="ghUsername" placeholder="e.g. monalisa">
+            </div>
+            <div class="input-group">
+                <label>Personal Access Token (PAT) <small style="font-weight: normal; color: #666;">(Scopes: repo,
+                        delete_repo)</small></label>
+                <input type="password" id="ghToken" placeholder="ghp_...">
+            </div>
+        </div>
+
+        <!-- Files Section (Global) -->
+        <div class="section">
+            <div class="section-header">
+                <h2>📄 Files to Upload</h2>
+                <button class="btn" onclick="addFileInput()">➕ Add File</button>
+            </div>
+            <div id="fileList" class="file-list"></div>
+        </div>
+
+        <!-- Action Tabs: Create vs Update/Manage -->
+        <div class="section">
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('create')">✨ Create New Repos</div>
+                <div class="tab" onclick="switchTab('update')">♻️ Update & Manage Existing</div>
+            </div>
+
+            <!-- TAB 1: CREATE -->
+            <div id="tab-create" class="tab-content active">
+                <h3>Create New Repositories</h3>
+                <p style="color: #666; font-size: 14px; margin-bottom: 16px;">
+                    Enter the names of the repositories you want to create. They will be created as
+                    <strong>private</strong>.
+                </p>
+                <div id="createRepoList" class="repo-list"></div>
+                <button class="btn mt-2" onclick="addCreateRepoInput()">➕ Add Repo Name</button>
+                <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 24px 0;">
+                <button class="btn btn-primary w-full" onclick="processCreate()">🚀 Create & Upload Files</button>
+            </div>
+
+            <!-- TAB 2: UPDATE / MANAGE -->
+            <div id="tab-update" class="tab-content">
+                <h3>Select Repositories</h3>
+                <p style="color: #666; font-size: 14px; margin-bottom: 16px;">
+                    Fetch your existing repositories, select them, and apply updates (upload files) or delete them.
+                </p>
+                <button class="btn" onclick="fetchExistingRepos()">🔄 Fetch Repositories</button>
+
+                <div class="mt-2 text-sm" id="repoFetchStatus"></div>
+
+                <div id="updateRepoList" class="repo-checkbox-list" style="margin-top: 12px; display: none;">
+                    <!-- Checkboxes injected here -->
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 16px;">
+                    <button class="btn btn-primary" onclick="processUpdate()" style="flex: 2;">♻️ Update Selected (Push
+                        Files)</button>
+                    <button class="btn btn-danger" onclick="processDelete()" style="flex: 1;">🗑️ Delete
+                        Selected</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Output Log -->
+        <div class="section">
+            <h3>📜 Output Log</h3>
+            <pre id="output">Ready...</pre>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY_CREDS = 'gh_creds';
+        const STORAGE_KEY_FILES = 'gh_files';
+
+        // --- Init ---
+        window.onload = () => {
+            const creds = JSON.parse(localStorage.getItem(STORAGE_KEY_CREDS) || '{}');
+            if (creds.username) document.getElementById('ghUsername').value = creds.username;
+            if (creds.token) document.getElementById('ghToken').value = creds.token;
+
+            // Load saved files
+            const files = JSON.parse(localStorage.getItem(STORAGE_KEY_FILES) || '[]');
+            if (files.length) {
+                files.forEach(f => addFileInput(f.name, f.content));
+            } else {
+                addFileInput('index.html', '<h1>Hello World</h1>');
+            }
+
+            // Init Create Repo Input
+            addCreateRepoInput();
+        };
+
+        // --- Tabs ---
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.tab[onclick="switchTab('${tabName}')"]`).classList.add('active');
+
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+        }
+
+        // --- Data Getters ---
+        function getCredentials() {
+            const username = document.getElementById('ghUsername').value.trim();
+            const token = document.getElementById('ghToken').value.trim();
+            if (!username || !token) {
+                alert('Please enter GitHub Username and Token first.');
+                return null;
+            }
+            localStorage.setItem(STORAGE_KEY_CREDS, JSON.stringify({ username, token }));
+            return { username, token };
+        }
+
+        function getFiles() {
+            const fileRows = [...document.querySelectorAll('.file-item')];
+            const files = fileRows.map(row => ({
+                name: row.querySelector('.file-name').value.trim(),
+                content: row.querySelector('.file-content').value
+            })).filter(f => f.name);
+
+            localStorage.setItem(STORAGE_KEY_FILES, JSON.stringify(files));
+            return files;
+        }
+
+        function log(msg, isJson = false) {
+            const out = document.getElementById('output');
+            const text = isJson ? JSON.stringify(msg, null, 2) : msg;
+            out.textContent = text;
+        }
+
+        // --- UI Builders ---
+        function addCreateRepoInput() {
+            const div = document.createElement('div');
+            div.className = 'repo-item';
+            div.innerHTML = `
+                <input type="text" class="create-repo-name" placeholder="New Repository Name">
+                <button class="btn btn-danger btn-sm" onclick="this.parentElement.remove()">✕</button>
+            `;
+            document.getElementById('createRepoList').appendChild(div);
+        }
+
+        function addFileInput(name = '', content = '') {
+            const div = document.createElement('div');
+            div.className = 'file-item';
+            div.innerHTML = `
+                <div class="file-header">
+                    <input type="text" class="file-name" value="${name}" placeholder="filename.ext" style="width: 300px;">
+                    <button class="btn btn-danger btn-sm" onclick="this.parentElement.parentElement.remove()">✕ Remove File</button>
+                </div>
+                <textarea class="file-content" placeholder="Content...">${content}</textarea>
+            `;
+            document.getElementById('fileList').appendChild(div);
+        }
+
+        // --- Actions: Fetch ---
+        async function fetchExistingRepos() {
+            const creds = getCredentials();
+            if (!creds) return;
+
+            const list = document.getElementById('updateRepoList');
+            const status = document.getElementById('repoFetchStatus');
+
+            list.innerHTML = '';
+            list.style.display = 'none';
+            status.textContent = 'Fetching repositories...';
+
+            try {
+                const res = await fetch('/get-repos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: creds.token })
+                });
+                const repos = await res.json();
+
+                if (repos.error) throw new Error(repos.error);
+
+                if (repos.length === 0) {
+                    status.textContent = 'No repositories found.';
+                    return;
+                }
+
+                status.textContent = `Found ${repos.length} repositories.`;
+                list.style.display = 'block';
+
+                const selectAllDiv = document.createElement('div');
+                selectAllDiv.className = 'repo-checkbox-item';
+                selectAllDiv.style.borderBottom = '1px solid var(--border-color)';
+                selectAllDiv.style.marginBottom = '8px';
+                selectAllDiv.innerHTML = `
+                    <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)">
+                    <span style="font-weight: bold;">Select All</span>
+                `;
+                list.appendChild(selectAllDiv);
+
+                repos.forEach(repo => {
+                    const div = document.createElement('div');
+                    div.className = 'repo-checkbox-item';
+                    div.innerHTML = `
+                        <input type="checkbox" value="${repo.name}" class="update-repo-checkbox">
+                        <span style="flex: 1; font-weight: 500;">
+                            ${repo.name}
+                            <small style="color: #666; font-weight: normal; margin-left: 8px;">
+                                (${repo.private ? 'Private' : 'Public'})
+                            </small>
+                        </span>
+                        <a href="${repo.html_url}" target="_blank" class="btn btn-sm" style="text-decoration:none;">View ↗</a>
+                    `;
+                    list.appendChild(div);
+                });
+
+            } catch (e) {
+                status.textContent = 'Error: ' + e.message;
+                log('Fetch Error: ' + e.message);
+            }
+        }
+
+        // --- Actions: Create ---
+        async function processCreate() {
+            const creds = getCredentials();
+            if (!creds) return;
+
+            const inputs = document.querySelectorAll('.create-repo-name');
+            const repos = [...inputs].map(i => i.value.trim()).filter(Boolean);
+            const files = getFiles();
+
+            if (repos.length === 0) return alert('Please enter at least one repository name to create.');
+
+            if (files.length === 0 && !confirm('No files added. Create empty repos?')) return;
+
+            log('Creating repositories...');
+
+            try {
+                const res = await fetch('/create-repos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: creds.username,
+                        token: creds.token,
+                        repos,
+                        files
+                    })
+                });
+                const result = await res.json();
+                log(result, true);
+
+                // Switch tab to update so they can see them? Or clear inputs?
+                if (confirm('Creation complete. Clear inputs?')) {
+                    document.getElementById('createRepoList').innerHTML = '';
+                    addCreateRepoInput();
+                }
+
+            } catch (e) {
+                log('Create Error: ' + e.message);
+            }
+        }
+
+        // --- Actions: Update ---
+        async function processUpdate() {
+            const creds = getCredentials();
+            if (!creds) return;
+
+            const checkboxes = document.querySelectorAll('.update-repo-checkbox:checked');
+            const repos = [...checkboxes].map(c => c.value);
+            const files = getFiles();
+
+            if (repos.length === 0) return alert('Please select at least one repository to update.');
+            if (files.length === 0) return alert('Please add at least one file to update/create.');
+
+            log(`Updating ${repos.length} repositories...`);
+
+            try {
+                const res = await fetch('/update-repos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: creds.username,
+                        token: creds.token,
+                        repos,
+                        files
+                    })
+                });
+                const result = await res.json();
+                log(result, true);
+            } catch (e) {
+                log('Update Error: ' + e.message);
+            }
+        }
+
+        // --- Actions: Delete ---
+        async function processDelete() {
+            const creds = getCredentials();
+            if (!creds) return;
+
+            const checkboxes = document.querySelectorAll('.update-repo-checkbox:checked');
+            const repos = [...checkboxes].map(c => c.value);
+
+            if (repos.length === 0) return alert('Please select at least one repository to DELETE.');
+
+            const confirmStr = prompt(`⚠️ DANGER ZONE ⚠️\n\nTo confirm deleting these ${repos.length} repositories, type "delete":\n\n${repos.join(', ')}`);
+            if (confirmStr !== 'delete') return alert('Deletion cancelled.');
+
+            log(`Deleting ${repos.length} repositories...`);
+
+            try {
+                const res = await fetch('/delete-repos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: creds.username,
+                        token: creds.token,
+                        repos
+                    })
+                });
+                const result = await res.json();
+                log(result, true);
+
+                // Refresh list
+                fetchExistingRepos();
+            } catch (e) {
+                log('Delete Error: ' + e.message);
+            }
+        }
+
+        function toggleSelectAll(source) {
+            const checkboxes = document.querySelectorAll('.update-repo-checkbox');
+            checkboxes.forEach(c => c.checked = source.checked);
+        }
+    </script>
+
+
+</body></html>
